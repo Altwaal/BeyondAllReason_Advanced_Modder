@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Lua Toolchain - BAR Modder</title>
+    <script src="luamin.js" defer></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary-color: #10b981;
+            --accent-color: #8b5cf6;
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --border-color: #475569;
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 25% 25%, #3b82f6 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, #8b5cf6 0%, transparent 50%);
+            background-attachment: fixed;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem 0;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 30px rgba(102, 126, 234, 0.5);
+        }
+
+        .header p {
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin: 2rem 0;
+            padding: 1rem;
+            background: var(--bg-secondary);
+            border-radius: 0.75rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .status-loading {
+            color: var(--warning-color);
+        }
+
+        .status-ready {
+            color: var(--secondary-color);
+        }
+
+        .pipeline {
+            display: grid;
+            gap: 2rem;
+        }
+
+        .pipeline-step {
+            background: var(--bg-secondary);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+        }
+
+        .pipeline-step:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .step-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .step-number {
+            width: 3rem;
+            height: 3rem;
+            background: var(--gradient-primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.25rem;
+        }
+
+        .step-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .step-description {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+
+        .input-container {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        .textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 1rem;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            border-radius: 0.75rem;
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            font-size: 0.875rem;
+            line-height: 1.5;
+            resize: vertical;
+            transition: all 0.2s ease;
+        }
+
+        .textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .textarea:read-only {
+            background: var(--bg-primary);
+            cursor: default;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .copy-btn:hover:not(:disabled) {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .copy-btn:disabled {
+            background: var(--border-color);
+            cursor: not-allowed;
+        }
+
+        .info-stats {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            background: var(--bg-primary);
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1rem;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: #059669;
+            transform: translateY(-1px);
+        }
+
+        .btn-accent {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .btn-accent:hover:not(:disabled) {
+            background: #7c3aed;
+            transform: translateY(-1px);
+        }
+
+        .btn:disabled {
+            background: var(--border-color);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--danger-color);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin: 1rem 0;
+            color: var(--danger-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .success-message {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid var(--secondary-color);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin: 1rem 0;
+            color: var(--secondary-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid var(--border-color);
+            border-top: 2px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 3rem 0;
+        }
+
+        .feature {
+            background: var(--bg-secondary);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .feature h3 {
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .feature p {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .info-stats {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1><i class="fas fa-code"></i> Advanced Lua Toolchain</h1>
+            <p>Professional development environment for Beyond All Reason Lua modifications</p>
+        </header>
+
+        <div id="status-indicator" class="status-indicator status-loading">
+            <div class="loading-spinner"></div>
+            <span id="status-text">Loading luamin.js...</span>
+        </div>
+
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon"><i class="fas fa-unlock"></i></div>
+                <h3>Base64URL Decoder</h3>
+                <p>Decode encoded Lua scripts for editing and analysis</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon"><i class="fas fa-magic"></i></div>
+                <h3>Code Beautifier</h3>
+                <p>Format and structure your Lua code for better readability</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon"><i class="fas fa-compress-alt"></i></div>
+                <h3>Code Minifier</h3>
+                <p>Optimize your code for production with advanced minification</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon"><i class="fas fa-lock"></i></div>
+                <h3>Base64URL Encoder</h3>
+                <p>Encode your final scripts for use in game configurations</p>
+            </div>
+        </div>
+
+        <div class="pipeline">
+            <div class="pipeline-step">
+                <div class="step-header">
+                    <div class="step-number">1</div>
+                    <div>
+                        <div class="step-title">Decode Base64URL</div>
+                        <div class="step-description">Paste your encoded string to extract the Lua code</div>
+                    </div>
+                </div>
+                <div class="input-container">
+                    <textarea id="base64Input" class="textarea" spellcheck="false" placeholder="Paste your Base64URL encoded string here..."></textarea>
+                    <button class="copy-btn" data-target="base64Input">
+                        <i class="fas fa-copy"></i> Copy
+                    </button>
+                </div>
+                <div class="info-stats">
+                    <div id="base64InputInfo" class="stat"></div>
+                </div>
+                <div class="button-group">
+                    <button id="decodeBtn" class="btn btn-secondary">
+                        <i class="fas fa-unlock"></i> Decode to Lua
+                    </button>
+                </div>
+            </div>
+
+            <div class="pipeline-step">
+                <div class="step-header">
+                    <div class="step-number">2</div>
+                    <div>
+                        <div class="step-title">Edit Lua Code</div>
+                        <div class="step-description">Modify your Lua script or paste new code directly</div>
+                    </div>
+                </div>
+                <div class="input-container">
+                    <textarea id="luaInput" class="textarea" spellcheck="false" placeholder="-- Your Lua code will appear here after decoding,
+-- or you can paste it directly."></textarea>
+                    <button class="copy-btn" data-target="luaInput">
+                        <i class="fas fa-copy"></i> Copy
+                    </button>
+                </div>
+                <div class="info-stats">
+                    <div id="luaInputInfo" class="stat"></div>
+                </div>
+                <div class="button-group">
+                    <button id="beautifyBtn" class="btn btn-accent">
+                        <i class="fas fa-magic"></i> Beautify Code
+                    </button>
+                    <button id="minifyBtn" class="btn btn-primary">
+                        <i class="fas fa-compress-alt"></i> Minify Code
+                    </button>
+                </div>
+            </div>
+
+            <div class="pipeline-step">
+                <div class="step-header">
+                    <div class="step-number">3</div>
+                    <div>
+                        <div class="step-title">Processed Code</div>
+                        <div class="step-description">Review your beautified or minified Lua code</div>
+                    </div>
+                </div>
+                <div class="input-container">
+                    <textarea id="minifiedOutput" class="textarea" spellcheck="false" readonly></textarea>
+                    <button class="copy-btn" data-target="minifiedOutput">
+                        <i class="fas fa-copy"></i> Copy
+                    </button>
+                </div>
+                <div class="info-stats">
+                    <div id="minifiedOutputInfo" class="stat"></div>
+                </div>
+                <div class="button-group">
+                    <button id="encodeBtn" class="btn btn-primary">
+                        <i class="fas fa-lock"></i> Encode to Base64URL
+                    </button>
+                </div>
+            </div>
+
+            <div class="pipeline-step">
+                <div class="step-header">
+                    <div class="step-number">4</div>
+                    <div>
+                        <div class="step-title">Final Result</div>
+                        <div class="step-description">Your encoded script ready for use in game configurations</div>
+                    </div>
+                </div>
+                <div class="input-container">
+                    <textarea id="base64Output" class="textarea" readonly></textarea>
+                    <button class="copy-btn" data-target="base64Output">
+                        <i class="fas fa-copy"></i> Copy
+                    </button>
+                </div>
+                <div class="info-stats">
+                    <div id="base64OutputInfo" class="stat"></div>
+                </div>
+                <div class="button-group">
+                    <a href="index-modern.html" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Configurator
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM Element References
+        const base64Input = document.getElementById('base64Input');
+        const base64InputInfo = document.getElementById('base64InputInfo');
+        const decodeBtn = document.getElementById('decodeBtn');
+
+        const luaInput = document.getElementById('luaInput');
+        const luaInputInfo = document.getElementById('luaInputInfo');
+        const beautifyBtn = document.getElementById('beautifyBtn');
+        const minifyBtn = document.getElementById('minifyBtn');
+
+        const minifiedOutput = document.getElementById('minifiedOutput');
+        const minifiedOutputInfo = document.getElementById('minifiedOutputInfo');
+        const encodeBtn = document.getElementById('encodeBtn');
+
+        const base64Output = document.getElementById('base64Output');
+        const base64OutputInfo = document.getElementById('base64OutputInfo');
+        
+        const statusIndicator = document.getElementById('status-indicator');
+        const statusText = document.getElementById('status-text');
+        const allCopyBtns = document.querySelectorAll('.copy-btn');
+
+        // Main Functions
+        function handleDecode() {
+            const b64urlString = base64Input.value;
+            if (!b64urlString.trim()) return;
+
+            try {
+                let base64 = b64urlString.replace(/-/g, '+').replace(/_/g, '/');
+                while (base64.length % 4) { base64 += '='; }
+
+                const decodedCode = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+                
+                luaInput.value = decodedCode;
+                showMessage('Successfully decoded Base64URL string!', 'success');
+            } catch (e) {
+                showMessage(`Decoding Error: ${e.message}`, 'error');
+            }
+            updateAllUI();
+        }
+
+        function handleBeautify() {
+            const originalCode = luaInput.value;
+            
+            minifiedOutput.value = '';
+            base64Output.value = '';
+
+            if (!originalCode.trim()) {
+                updateAllUI();
+                return;
+            }
+
+            try {
+                const beautifyOptions = {
+                    Indentation: '\t',
+                    RenameVariables: false,
+                    RenameGlobals: false,
+                    SolveMath: false
+                };
+                minifiedOutput.value = luaminp.Beautify(originalCode, beautifyOptions);
+                showMessage('Code beautified successfully!', 'success');
+            } catch (e) {
+                showMessage(`Beautify Error: ${e.message}`, 'error');
+            }
+            updateAllUI();
+        }
+        
+        function handleMinify() {
+            const originalCode = luaInput.value;
+            
+            minifiedOutput.value = '';
+            base64Output.value = '';
+            if (!originalCode.trim()) {
+                updateAllUI();
+                return;
+            }
+
+            try {
+                const minifyOptions = {
+                    RenameVariables: true,
+                    RenameGlobals: false, 
+                    SolveMath: true
+                };
+                const minifiedCode = luaminp.Minify(originalCode, minifyOptions);
+
+                const commentsToKeep = [];
+                const lines = originalCode.split('\n');
+                for (const line of lines) {
+                    if (commentsToKeep.length >= 3) { break; }
+                    if (line.trim().startsWith('--')) { commentsToKeep.push(line); }
+                }
+                
+                if (commentsToKeep.length > 0) {
+                    const header = commentsToKeep.join('\n');
+                    minifiedOutput.value = `${header}\n${minifiedCode}`;
+                } else {
+                    minifiedOutput.value = minifiedCode;
+                }
+
+                showMessage('Code minified successfully!', 'success');
+            } catch (e) {
+                minifiedOutput.value = `Minify Error: ${e.message}`;
+                showMessage(`Minify Error: ${e.message}`, 'error');
+            }
+            updateAllUI();
+        }
+
+        function handleEncode() {
+            const codeToEncode = minifiedOutput.value;
+            if (!codeToEncode || codeToEncode.startsWith('Minify Error')) {
+                base64Output.value = '';
+                updateAllUI();
+                return;
+            }
+
+            try {
+                const utf8SafeString = unescape(encodeURIComponent(codeToEncode));
+                const base64String = btoa(utf8SafeString);
+                base64Output.value = base64String.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+                showMessage('Code encoded to Base64URL successfully!', 'success');
+            } catch (e) {
+                base64Output.value = `Encoding Error: ${e.message}`;
+                showMessage(`Encoding Error: ${e.message}`, 'error');
+            }
+            updateAllUI();
+        }
+        
+        // UI Update Functions
+        function updateCharCount(inputEl, infoEl) {
+            const text = inputEl.value;
+            const errorPrefixes = ['Minify Error:', 'Encoding Error:'];
+            const hasError = errorPrefixes.some(prefix => text.startsWith(prefix));
+
+            if (text && !hasError) {
+                const lines = text.split('\n').length;
+                infoEl.innerHTML = `<i class="fas fa-info-circle"></i> ${text.length} characters, ${lines} lines`;
+            } else {
+                infoEl.textContent = '';
+            }
+        }
+
+        function updateAllUI() {
+            // Update character counts
+            updateCharCount(base64Input, base64InputInfo);
+            updateCharCount(luaInput, luaInputInfo);
+            updateCharCount(minifiedOutput, minifiedOutputInfo);
+            updateCharCount(base64Output, base64OutputInfo);
+            
+            // Update button states
+            allCopyBtns.forEach(btn => {
+                const target = document.getElementById(btn.dataset.target);
+                btn.disabled = !target.value;
+            });
+            decodeBtn.disabled = !base64Input.value;
+            beautifyBtn.disabled = !luaInput.value;
+            minifyBtn.disabled = !luaInput.value;
+            encodeBtn.disabled = !minifiedOutput.value || minifiedOutput.value.startsWith('Minify Error');
+        }
+
+        function handleCopy(event) {
+            const targetId = event.target.dataset.target || event.target.closest('.copy-btn').dataset.target;
+            const sourceTextarea = document.getElementById(targetId);
+            
+            if (!sourceTextarea || !sourceTextarea.value) return;
+            
+            navigator.clipboard.writeText(sourceTextarea.value).then(() => {
+                const button = event.target.classList.contains('copy-btn') ? event.target : event.target.closest('.copy-btn');
+                const originalHTML = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                button.style.background = 'var(--secondary-color)';
+                setTimeout(() => { 
+                    button.innerHTML = originalHTML;
+                    button.style.background = 'var(--primary-color)';
+                    updateAllUI();
+                }, 1500);
+                showMessage('Copied to clipboard!', 'success');
+            }).catch(err => {
+                console.error('Failed to copy text: ', err);
+                showMessage('Failed to copy to clipboard', 'error');
+            });
+        }
+
+        function showMessage(message, type) {
+            // Remove any existing messages
+            const existingMessages = document.querySelectorAll('.error-message, .success-message');
+            existingMessages.forEach(msg => msg.remove());
+
+            // Create new message element
+            const messageEl = document.createElement('div');
+            messageEl.className = type === 'error' ? 'error-message' : 'success-message';
+            messageEl.innerHTML = `<i class="fas fa-${type === 'error' ? 'exclamation-triangle' : 'check-circle'}"></i> ${message}`;
+            
+            // Insert after status indicator
+            statusIndicator.parentNode.insertBefore(messageEl, statusIndicator.nextSibling);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (messageEl.parentNode) {
+                    messageEl.remove();
+                }
+            }, 5000);
+        }
+
+        // Event Listeners & Initializer
+        ['base64Input', 'luaInput', 'minifiedOutput'].forEach(id => {
+            document.getElementById(id).addEventListener('input', updateAllUI);
+        });
+
+        decodeBtn.addEventListener('click', handleDecode);
+        beautifyBtn.addEventListener('click', handleBeautify);
+        minifyBtn.addEventListener('click', handleMinify);
+        encodeBtn.addEventListener('click', handleEncode);
+        allCopyBtns.forEach(btn => btn.addEventListener('click', handleCopy));
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            const libraryCheckInterval = setInterval(() => {
+                if (typeof luaminp !== 'undefined' && typeof luaminp.Beautify === 'function' && typeof luaminp.Minify === 'function') {
+                    clearInterval(libraryCheckInterval);
+                    statusIndicator.className = 'status-indicator status-ready';
+                    statusText.innerHTML = '<i class="fas fa-check-circle"></i> Library loaded. Ready to process!';
+                    updateAllUI(); 
+                    setTimeout(() => { 
+                        statusIndicator.style.display = 'none'; 
+                    }, 3000);
+                }
+            }, 100);
+        });
+    </script>
+</body>
+</html>
