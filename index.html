@@ -5,74 +5,119 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Beyond All Reason - Advanced Modder</title>
     <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
         body {
-            font-family: sans-serif;
-            margin: 20px;
-            line-height: 1.6;
-            background-color: #121212;
-            color: #e0e0e0;
-        }
-        h1, h2, h3 {
-            color: #f5f5f5;
-            margin-top: 0px;
-            margin-bottom: 16px;
-        }
-        a { color: #4caf50; }
-        .container {
-            max-width: 950px;
-            margin: 0 auto;
-            background: #1e1e1e;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            margin: 0;
             padding: 20px;
-            border-radius: 8px;
-            border: 1px solid #333;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            line-height: 1.6;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 25%, #16213e 50%, #0f3460 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+        }
+        h1 {
+            color: #f8fafc;
+            margin-top: 0;
+            margin-bottom: 24px;
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            background: linear-gradient(135deg, #60a5fa, #34d399);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        h2, h3 {
+            color: #f1f5f9;
+            margin-top: 0;
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+        
+        h2 {
+            font-size: 1.5rem;
+            border-bottom: 2px solid #374151;
+            padding-bottom: 8px;
+        }
+        
+        a { 
+            color: #60a5fa; 
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+        
+        a:hover {
+            color: #93c5fd;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            padding: 32px;
+            border-radius: 16px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
         .tabs {
             display: flex;
-            border-bottom: 1px solid #333;
+            border-bottom: 2px solid #374151;
+            margin-bottom: 24px;
+            gap: 4px;
         }
+        
         .tab-button {
-            padding: 10px 18px;
+            padding: 12px 24px;
             cursor: pointer;
-            background-color: #2c2c2c;
-            border: 1px solid #333;
-            border-bottom: none;
-            border-top-left-radius: 6px;
-            border-top-right-radius: 6px;
-            color: #aaa;
-            font-size: 1em;
-            margin-right: 2px;
+            background: rgba(55, 65, 81, 0.5);
+            border: none;
+            border-radius: 8px 8px 0 0;
+            color: #9ca3af;
+            font-size: 0.95rem;
+            font-weight: 500;
             position: relative;
-            transition: background-color 0.2s ease, color 0.2s ease;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
         }
+        
         .tab-button:not(.active):hover {
-            background-color: #3a3a3a;
-            color: #e0e0e0;
+            background: rgba(75, 85, 99, 0.7);
+            color: #d1d5db;
+            transform: translateY(-2px);
         }
+        
         .tab-button.active {
-            background-color: #1e1e1e;
-            color: #f5f5f5;
-            font-weight: bold;
-            margin-bottom: -1px; 
-            border-color: #333;
-            border-bottom-color: #1e1e1e;
-            z-index: 1;
+            background: rgba(96, 165, 250, 0.1);
+            color: #60a5fa;
+            font-weight: 600;
+            border-bottom-color: #60a5fa;
         }
         .tab-content {
             display: none;
-            background-color: #1e1e1e;
-            padding: 20px;
-            border: 1px solid #333;
-            border-top: none;
-            border-radius: 0 0 6px 6px;
+            background: rgba(51, 65, 85, 0.3);
+            padding: 24px;
+            border-radius: 0 12px 12px 12px;
+            border: 1px solid rgba(148, 163, 184, 0.1);
         }
-        .tab-content.active { display: block; }
+        
+        .tab-content.active { 
+            display: block; 
+        }
+        
         .settings-container, .output-container {
-            margin-bottom: 20px;
-            padding: 15px;
-            border: 1px solid #444;
-            border-radius: 5px;
-            background-color: #2c2c2c;
+            margin-bottom: 24px;
+            padding: 24px;
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            border-radius: 12px;
+            background: rgba(51, 65, 85, 0.4);
+            backdrop-filter: blur(5px);
         }
         #options-form-columns, #custom-options-form-columns {
             display: flex;
@@ -95,11 +140,12 @@
             background-color: #333;
         }
         input[type="checkbox"] {
-            accent-color: #66bb6a;
+            accent-color: #60a5fa;
             width: 1.2em;
             height: 1.2em;
             margin-right: 8px;
             vertical-align: middle;
+            cursor: pointer;
         }
         input[type="checkbox"]:disabled { cursor: not-allowed; }
         .custom-option-label-text.disabled { color: #777; }
@@ -118,16 +164,28 @@
             transform: translate(-50%, -50%); line-height: 0;
         }
         select {
-            box-sizing: border-box; margin-left: 5px;
-            background-color: #4a4a4a; color: #f0f0f0;
-            border: 1px solid #777; border-radius: 4px;
-            padding: 2px 6px; font-size: 0.9em; vertical-align: middle; 
-            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            box-sizing: border-box; 
+            margin-left: 8px;
+            background: rgba(75, 85, 99, 0.6);
+            color: #f1f5f9;
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            border-radius: 8px;
+            padding: 6px 12px; 
+            font-size: 0.9em; 
+            vertical-align: middle; 
+            transition: all 0.2s ease;
+            cursor: pointer;
         }
+        
         select:focus {
-            border-color: #66bb6a;
-            box-shadow: 0 0 0 2px rgba(102, 187, 106, 0.4);
+            border-color: #60a5fa;
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
             outline: none;
+            background: rgba(75, 85, 99, 0.8);
+        }
+        
+        select:hover {
+            border-color: #9ca3af;
         }
         
         .command-output-section { 
@@ -145,15 +203,31 @@
             resize: vertical; background-color: #1e1e1e; color: #f5f5f5;
         }
         .copy-button {
-            display: inline-block; padding: 10px 15px;
-            background-color: #4caf50; color: white;
-            border: none; border-radius: 4px; cursor: pointer;
-            font-size: 1em; transition: background-color 0.3s ease;
+            display: inline-block; 
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer;
+            font-size: 0.95rem; 
+            font-weight: 500;
+            transition: all 0.2s ease;
             white-space: nowrap;
             text-align: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
-        .copy-button:hover { background-color: #66bb6a; }
-        .copy-button:active { background-color: #388e3c; }
+        
+        .copy-button:hover { 
+            background: linear-gradient(135deg, #059669, #047857);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 8px -1px rgba(0, 0, 0, 0.15);
+        }
+        
+        .copy-button:active { 
+            transform: translateY(0);
+            box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+        }
         .lobby-name-output {
             margin-top: 20px; padding: 10px; border: 1px dashed #555;
             background-color: #333; font-family: monospace; word-break: break-all;
@@ -266,17 +340,21 @@
             border-top: 1px solid #444;
         }
         .action-button {
-            padding: 8px 16px;
-            background-color: #4a4a4a;
-            color: #e0e0e0;
-            border: 1px solid #777;
-            border-radius: 4px;
+            padding: 10px 18px;
+            background: rgba(75, 85, 99, 0.6);
+            color: #f1f5f9;
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 0.9em;
-            transition: background-color 0.2s ease;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
         }
+        
         .action-button:hover {
-            background-color: #666;
+            background: rgba(96, 165, 250, 0.2);
+            border-color: #60a5fa;
+            transform: translateY(-1px);
         }
     </style>
     <!-- Add missing library imports -->
