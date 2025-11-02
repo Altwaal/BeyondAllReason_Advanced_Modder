@@ -5,7 +5,7 @@ To install the widgets, download the files here and put them in this game folder
 *   **[Raptor Stats Panel with Aggro](https://gist.github.com/tetrisface/2f99f5a5b179e3ac42e7e63825880713)**
     *   Replaces stock Raptor Stats widget. Shows more info like aggro and queen resistances.
  
-*   **[Map Start Lines Widget](https://gist.github.com/rcorex/15ac19cad881b85d2d1e8c1f482b9525)**
+*   **[Map Start Lines Widget](https://gist.github.com/tetrisface/2f99f5a5b179e3ac42e7e63825880713)**
     *   Draws lines for 12 player vs Raptors start positions on the Full Metal Plate map.
 
 *   **[Layout Planner Widget](https://github.com/noryon/BARLayoutPlanner)**
@@ -13,6 +13,9 @@ To install the widgets, download the files here and put them in this game folder
    
 *   **[Reclaim Selected Widget](https://github.com/manshanko/bar-widgets/blob/main/cmd_reclaim_selected.lua)**
     *   Adds a button to reclaim selected units with nearby nano turrets. Good for clearing wind turbines.
+
+*   **[Raptor Delivery Tracker Widget](https://github.com/Altwaal/BARS_MODS/blob/main/Widgets/Raptor_Delivery_Tracker.lua)**
+    *   Tracks raptor deliveries and provides detailed information.
 
 ## Community and Guides
 
@@ -30,11 +33,14 @@ To install the widgets, download the files here and put them in this game folder
 
 ## Sources
 
-*   **[NuttyB Configurator Github](https://github.com/rcorex/nuttyb-config)**
-    *   The source code repository for this configurator.
+*   **[Advanced BAR Modder Github](https://github.com/Altwaal/BeyondAllReason_Advanced_Modder)**
+    *   The source code repository for this advanced configuration tool.
 
 *   **[NuttyB Tweaks Github](https://github.com/Backbash/NuttyB-Raptors)**
     *   The official source code repository for NuttyB tweaks used in this configurator.
 
 *   **[The Paste Machine](https://docs.google.com/spreadsheets/d/1QSVsuAAMhBrhiZdTihVfSCwPzbbZWDLCtXWP23CU0ko/edit#gid=0)**
     *   The spreadsheet that inspired this configurator.
+
+*   **[Base 64 Codes for Tweaks](https://github.com/Altwaal/BARS_MODS/blob/main/Base%2064%20codes%20for%20tweaks)**
+    *   Collection of Base64 encoded tweaks and modifications for BAR.
